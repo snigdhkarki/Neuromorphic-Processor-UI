@@ -1,0 +1,265 @@
+/* App.css */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen,
+        Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+    background: #f0f2f5;
+    color: #1a1a2e;
+    padding: 20px;
+}
+
+.app {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+h1 {
+    font-size: 2rem;
+    font-weight: 600;
+    color: #1a1a2e;
+    margin-bottom: 24px;
+    letter-spacing: -0.5px;
+}
+
+/* Controls */
+.controls {
+    margin-bottom: 28px;
+}
+
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 8px;
+    font-size: 0.95rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    gap: 6px;
+}
+
+.btn:active {
+    transform: scale(0.96);
+}
+
+.btn-primary {
+    background: #4a6cf7;
+    color: white;
+}
+.btn-primary:hover {
+    background: #3a5cd9;
+    box-shadow: 0 4px 12px rgba(74, 108, 247, 0.35);
+}
+
+.btn-success {
+    background: #22c55e;
+    color: white;
+}
+.btn-success:hover {
+    background: #16a34a;
+    box-shadow: 0 4px 12px rgba(34, 197, 94, 0.35);
+}
+
+.btn-secondary {
+    background: #e2e8f0;
+    color: #1a1a2e;
+}
+.btn-secondary:hover {
+    background: #cbd5e1;
+}
+
+.btn-danger {
+    background: #ef4444;
+    color: white;
+}
+.btn-danger:hover {
+    background: #dc2626;
+    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.35);
+}
+
+.btn-sm {
+    padding: 6px 14px;
+    font-size: 0.85rem;
+    border-radius: 6px;
+}
+
+/* Node input */
+.node-input-container {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    background: white;
+    padding: 16px 20px;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+    max-width: 500px;
+    flex-wrap: wrap;
+}
+
+.node-input-container input {
+    flex: 1;
+    min-width: 160px;
+    padding: 10px 14px;
+    border: 2px solid #e2e8f0;
+    border-radius: 8px;
+    font-size: 0.95rem;
+    outline: none;
+    transition: border-color 0.2s;
+}
+.node-input-container input:focus {
+    border-color: #4a6cf7;
+}
+
+/* Empty state */
+.empty-state {
+    background: white;
+    padding: 60px 20px;
+    text-align: center;
+    border-radius: 16px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+    color: #64748b;
+}
+.empty-state p {
+    font-size: 1.1rem;
+}
+
+/* Nodes container */
+.nodes-container {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+/* Node card */
+.node-card {
+    background: white;
+    border-radius: 16px;
+    padding: 24px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+    transition: box-shadow 0.2s;
+}
+.node-card:hover {
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+}
+
+.node-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 18px;
+    padding-bottom: 14px;
+    border-bottom: 2px solid #f1f5f9;
+}
+
+.node-header h2 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #1a1a2e;
+}
+
+/* Spikes */
+.spikes-container {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.no-spikes {
+    color: #94a3b8;
+    font-size: 0.95rem;
+    padding: 8px 0;
+}
+
+.spikes-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.spikes-table th {
+    text-align: left;
+    font-weight: 500;
+    color: #64748b;
+    font-size: 0.85rem;
+    padding: 0 8px 10px 8px;
+    border-bottom: 1px solid #f1f5f9;
+}
+
+.spikes-table td {
+    padding: 6px 8px;
+    vertical-align: middle;
+}
+
+.spikes-table td:first-child {
+    padding-left: 0;
+}
+.spikes-table td:last-child {
+    padding-right: 0;
+}
+
+.spikes-table input {
+    width: 100%;
+    padding: 8px 12px;
+    border: 2px solid #e2e8f0;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    outline: none;
+    transition: border-color 0.2s;
+    background: #fafbfc;
+}
+.spikes-table input:focus {
+    border-color: #4a6cf7;
+    background: white;
+}
+.spikes-table input::placeholder {
+    color: #a0aec0;
+}
+
+.spikes-table td:last-child {
+    text-align: center;
+    width: 50px;
+}
+
+.add-spike-btn {
+    align-self: flex-start;
+    margin-top: 4px;
+    background: #3a5cd9;
+    color: #ffffff;
+}
+.add-spike-btn:hover {
+    background: #3a5cd9;
+}
+
+/* Responsive */
+@media (max-width: 640px) {
+    .node-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
+
+    .spikes-table input {
+        font-size: 0.85rem;
+        padding: 6px 10px;
+    }
+
+    .node-input-container {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .node-input-container input {
+        min-width: unset;
+    }
+
+    .spikes-table th,
+    .spikes-table td {
+        padding: 4px 4px;
+    }
+}
