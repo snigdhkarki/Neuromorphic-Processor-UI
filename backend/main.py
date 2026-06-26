@@ -1,61 +1,98 @@
 from fastapi import FastAPI, UploadFile, File
 from fastapi.responses import Response
-from fastapi.middleware.cors import CORSMiddleware # 1. Import the middleware
+from fastapi.middleware.cors import CORSMiddleware
 import subprocess
 import tempfile
 import os
+import zipfile
+import io
 
 app = FastAPI()
 
-# 2. Add the CORS middleware to your app
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000"], # Allows requests from your React app
+    allow_origins=["http://localhost:3000"],   # restrict later to your Vercel URL
     allow_credentials=True,
-    allow_methods=["*"], # Allows all methods (POST, GET, etc.)
-    allow_headers=["*"], # Allows all headers
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 @app.post("/process")
-async def process_file(file: UploadFile = File(...)):
-    # 1. Read the uploaded file content
-    input_content = await file.read()
-    
-    # 2. Create a temporary output file path
+async def process_files(
+    network_file: UploadFile = File(...),
+    spike_file: UploadFile = File(...)
+):
+    # Read both uploaded files
+    network_content = await network_file.read()
+    spike_content = await spike_file.read()
+
+    # Temporary paths
+    input_path = tempfile.NamedTemporaryFile(delete=False, suffix=".txt").name
     output_path = tempfile.NamedTemporaryFile(delete=False, suffix=".txt").name
+    processor_input_path = tempfile.NamedTemporaryFile(delete=False, suffix=".txt").name
+    final_output_path = tempfile.NamedTemporaryFile(delete=False, suffix=".txt").name
 
     try:
-        # 3. Execute your binary.
-        # IMPORTANT: Your binary MUST be a Linux executable (see warning below).
-        # This replicates: ./binaryfilename < example.txt > out.txt
-        with tempfile.NamedTemporaryFile(delete=False, suffix=".txt") as tmp_input:
-            tmp_input.write(input_content)
-            input_path = tmp_input.name
-        
-        # Run the command using shell redirection (simplest way to replicate your exact command)
-        # Ensure 'your_binary_name' is in the same directory and has execute permissions.
+        # --- Step 1: Run network_tool on network file ---
+        with open(input_path, "wb") as f:
+            f.write(network_content)
+
+        # Execute network_tool
         subprocess.run(
             f"./network_tool < {input_path} > {output_path}",
             shell=True,
             check=True,
-            executable="/bin/bash"
+            executable="/bin/bash",
+            stderr=subprocess.PIPE,
+            text=True
         )
-        
-        # 4. Read the generated output file
-        with open(output_path, "rb") as f:
-            output_content = f.read()
-            
-        # 5. Return the file as a download
+
+        # Read the output of network_tool (out.txt content)
+        with open(output_path, "r") as f:
+            out_content = f.read()
+
+        # --- Step 2: Build processorinput.txt ---
+        # Format: "ML\n{out_content}\n{spike_content}"
+        processor_content = "ML\n" + out_content + "\n" + spike_content.decode('utf-8')
+        with open(processor_input_path, "w") as f:
+            f.write(processor_content)
+
+        # --- Step 3: Run processor_tool_risp ---
+        subprocess.run(
+            f"./processor_tool_risp < {processor_input_path} > {final_output_path}",
+            shell=True,
+            check=True,
+            executable="/bin/bash",
+            stderr=subprocess.PIPE,
+            text=True
+        )
+
+        # --- Step 4: Create a ZIP with both output files ---
+        zip_buffer = io.BytesIO()
+        with zipfile.ZipFile(zip_buffer, "w", zipfile.ZIP_DEFLATED) as zipf:
+            # Add out.txt
+            zipf.writestr("out.txt", out_content)
+            # Add finalout.txt
+            with open(final_output_path, "rb") as f:
+                zipf.writestr("finalout.txt", f.read())
+
+        zip_buffer.seek(0)
+
+        # --- Step 5: Return ZIP as download ---
         return Response(
-            content=output_content,
-            media_type="application/octet-stream",
-            headers={"Content-Disposition": "attachment; filename=out.txt"}
+            content=zip_buffer.getvalue(),
+            media_type="application/zip",
+            headers={"Content-Disposition": "attachment; filename=results.zip"}
         )
-        
+
     except subprocess.CalledProcessError as e:
-        return Response(content=f"Processing failed: {str(e)}", status_code=500)
+        # Return the error from the binary if possible
+        error_msg = e.stderr.strip() if e.stderr else str(e)
+        return Response(content=f"Binary error: {error_msg}", status_code=500)
+    except Exception as e:
+        return Response(content=f"Server error: {str(e)}", status_code=500)
     finally:
-        # 6. Clean up temporary files
-        os.unlink(input_path)
-        if os.path.exists(output_path):
-            os.unlink(output_path)
+        # Clean up temp files
+        for path in [input_path, output_path, processor_input_path, final_output_path]:
+            if os.path.exists(path):
+                os.unlink(path)

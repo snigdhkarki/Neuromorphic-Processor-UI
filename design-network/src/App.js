@@ -41,7 +41,7 @@ function App() {
       if (!response.ok) throw new Error('Failed to fetch file');
       const fileContent = await response.text();
       const logContent = logs.map((entry) => entry.raw).join('\n');
-      const finalContent = `FJ\n${fileContent}\n${logContent}\nTJ tmp_net.txt`;
+      const finalContent = `FJ\n${fileContent}\n${logContent}\nTJ`;
       const blob = new Blob([finalContent], { type: 'text/plain' });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');

@@ -1,29 +1,44 @@
 import React, { useState } from 'react';
 
 function App() {
-  const [file, setFile] = useState(null);
+  const [networkFile, setNetworkFile] = useState(null);
+  const [spikeFile, setSpikeFile] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
-  // Use environment variable (must start with REACT_APP_)
-  const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:8000';
+  const API_URL = process.env.REACT_APP_API_URL;
 
-  const handleFileChange = (e) => {
+  const handleNetworkChange = (e) => {
     const selected = e.target.files[0];
     if (selected && selected.type === 'text/plain') {
-      setFile(selected);
+      setNetworkFile(selected);
       setError('');
     } else {
-      setFile(null);
-      setError('Please select a .txt file');
+      setNetworkFile(null);
+      setError('Please select a .txt file for Network Define');
     }
   };
 
-  const handleUpload = async () => {
-    if (!file) return;
+  const handleSpikeChange = (e) => {
+    const selected = e.target.files[0];
+    if (selected && selected.type === 'text/plain') {
+      setSpikeFile(selected);
+      setError('');
+    } else {
+      setSpikeFile(null);
+      setError('Please select a .txt file for Input Spike Define');
+    }
+  };
+
+  const handleProcess = async () => {
+    if (!networkFile || !spikeFile) {
+      setError('Please select both files');
+      return;
+    }
 
     const formData = new FormData();
-    formData.append('file', file);
+    formData.append('network_file', networkFile);
+    formData.append('spike_file', spikeFile);
 
     setLoading(true);
     setError('');
@@ -39,12 +54,12 @@ function App() {
         throw new Error(errorText || 'Processing failed');
       }
 
-      // Convert response to a Blob and trigger download
+      // Get the ZIP blob
       const blob = await response.blob();
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = 'out.txt';
+      a.download = 'results.zip';   // user gets a zip file
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
@@ -57,24 +72,40 @@ function App() {
   };
 
   return (
-    <div style={{ maxWidth: '500px', margin: '50px auto', textAlign: 'center' }}>
+    <div style={{ maxWidth: '600px', margin: '50px auto', textAlign: 'center' }}>
       <h1>TXT Processor</h1>
-      <input
-        type="file"
-        accept=".txt"
-        onChange={handleFileChange}
-        disabled={loading}
-      />
-      <br /><br />
+
+      <div style={{ margin: '20px 0' }}>
+        <label><strong>Network Define</strong></label><br />
+        <input
+          type="file"
+          accept=".txt"
+          onChange={handleNetworkChange}
+          disabled={loading}
+        />
+        {networkFile && <p>Selected: {networkFile.name}</p>}
+      </div>
+
+      <div style={{ margin: '20px 0' }}>
+        <label><strong>Input Spike Define</strong></label><br />
+        <input
+          type="file"
+          accept=".txt"
+          onChange={handleSpikeChange}
+          disabled={loading}
+        />
+        {spikeFile && <p>Selected: {spikeFile.name}</p>}
+      </div>
+
       <button
-        onClick={handleUpload}
-        disabled={!file || loading}
-        style={{ padding: '8px 24px' }}
+        onClick={handleProcess}
+        disabled={!networkFile || !spikeFile || loading}
+        style={{ padding: '10px 30px' }}
       >
-        {loading ? 'Processing...' : 'Upload & Process'}
+        {loading ? 'Processing...' : 'Process'}
       </button>
+
       {error && <p style={{ color: 'red' }}>{error}</p>}
-      {file && !error && <p>Selected: {file.name}</p>}
     </div>
   );
 }
