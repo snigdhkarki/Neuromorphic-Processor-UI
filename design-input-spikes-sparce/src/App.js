@@ -123,6 +123,13 @@ const App = () => {
 
         lines.push(`RUN ${runValue}`);
         lines.push('GSR');
+        lines.push('OLF');
+        lines.push('OC');
+        lines.push('OT');
+        lines.push('NCH');
+        lines.push('NLFJ');
+        lines.push('NCJ');
+        lines.push('NCHJ');
 
         const content = lines.join('\n');
         const blob = new Blob([content], { type: 'text/plain' });

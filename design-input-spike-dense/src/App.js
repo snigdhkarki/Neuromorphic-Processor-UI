@@ -97,6 +97,13 @@ function App() {
     });
     content += `RUN ${runtimeInt}\n`;
     content += 'GSR';
+content += 'OLF';
+content += 'OC';
+content += 'OT';
+content += 'NCH';
+content += 'NLFJ';
+content += 'NCJ';
+content += 'NCHJ';
 
     // Create and download .txt file
     const blob = new Blob([content], { type: 'text/plain' });

@@ -1,5 +1,7 @@
 // App.js
 import React, { useState } from 'react';
+import JSZip from 'jszip';
+import WaveformDisplay from './WaveformDisplay';
 import './App.css';
 
 function App() {
@@ -8,8 +10,12 @@ function App() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+  const [outputText, setOutputText] = useState('');
+  const [waveformStart, setWaveformStart] = useState(0);
+  const [waveformEnd, setWaveformEnd] = useState(10);
 
-  const API_URL = process.env.REACT_APP_API_URL;
+  // const API_URL = process.env.REACT_APP_API_URL;
+  const API_URL = "http://127.0.0.1:8000";
 
   const handleNetworkChange = (e) => {
     const selected = e.target.files[0];
@@ -17,10 +23,12 @@ function App() {
       setNetworkFile(selected);
       setError('');
       setSuccess('');
+      setOutputText('');
     } else {
       setNetworkFile(null);
       setError('Please select a .txt file for Network Define');
       setSuccess('');
+      setOutputText('');
     }
   };
 
@@ -30,10 +38,12 @@ function App() {
       setSpikeFile(selected);
       setError('');
       setSuccess('');
+      setOutputText('');
     } else {
       setSpikeFile(null);
       setError('Please select a .txt file for Input Spike Define');
       setSuccess('');
+      setOutputText('');
     }
   };
 
@@ -51,6 +61,7 @@ function App() {
     setLoading(true);
     setError('');
     setSuccess('');
+    setOutputText('');
 
     try {
       const response = await fetch(`${API_URL}/process`, {
@@ -64,6 +75,19 @@ function App() {
       }
 
       const blob = await response.blob();
+
+      const zip = await JSZip.loadAsync(blob);
+      const file = zip.file('finalout.txt');
+      if (file) {
+        const content = await file.async('string');
+        setOutputText(content);
+        // Optionally auto-set range to match binary length (optional)
+        // e.g., find max length and set end accordingly
+      } else {
+        setOutputText('⚠️ finalout.txt not found in the downloaded ZIP.');
+      }
+
+      // Trigger download
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
@@ -77,6 +101,7 @@ function App() {
     } catch (err) {
       setError(err.message);
       setSuccess('');
+      setOutputText('');
     } finally {
       setLoading(false);
     }
@@ -106,7 +131,6 @@ function App() {
       <div className="app-card">
         <div className="app-header">
           <h1>Run Simulation</h1>
-          
         </div>
 
         <div className="upload-section">
@@ -176,6 +200,44 @@ function App() {
             {success && <span className="success">{success}</span>}
           </div>
         </div>
+
+        {/* ---- Waveform Output ---- */}
+        {outputText && (
+          <div className="output-section">
+            <h3>Waveform Output</h3>
+            <div className="range-controls">
+              <div className="range-input-group">
+                <label htmlFor="start-time">From:</label>
+                <input
+                  id="start-time"
+                  type="number"
+                  min="0"
+                  value={waveformStart}
+                  onChange={(e) =>
+                    setWaveformStart(Math.max(0, parseInt(e.target.value) || 0))
+                  }
+                />
+              </div>
+              <div className="range-input-group">
+                <label htmlFor="end-time">To:</label>
+                <input
+                  id="end-time"
+                  type="number"
+                  min="0"
+                  value={waveformEnd}
+                  onChange={(e) =>
+                    setWaveformEnd(Math.max(0, parseInt(e.target.value) || 0))
+                  }
+                />
+              </div>
+            </div>
+            <WaveformDisplay
+              text={outputText}
+              start={waveformStart}
+              end={waveformEnd}
+            />
+          </div>
+        )}
       </div>
     </>
   );

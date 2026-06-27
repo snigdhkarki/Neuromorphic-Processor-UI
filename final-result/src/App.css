@@ -297,6 +297,37 @@ body {
   height: 22px;
 }
 
+/* ----- new output section ----- */
+.output-section {
+  margin-top: 2rem;
+  padding-top: 1.2rem;
+  border-top: 1px solid #eef2f7;
+}
+
+.output-section h3 {
+  font-family: 'Inter', sans-serif;
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: #1a2a41;
+  margin-bottom: 0.6rem;
+}
+
+.output-content {
+  background: #f4f8fe;
+  border: 1px solid #e2eaf2;
+  border-radius: 10px;
+  padding: 1rem 1.2rem;
+  font-family: 'SF Mono', 'Menlo', 'Monaco', 'Consolas', monospace;
+  font-size: 0.85rem;
+  line-height: 1.5;
+  color: #1e2b3c;
+  white-space: pre-wrap;
+  word-break: break-word;
+  max-height: 300px;
+  overflow-y: auto;
+  margin: 0;
+}
+
 /* ----- responsive ----- */
 @media (max-width: 600px) {
   .app-card {
@@ -345,6 +376,10 @@ body {
     width: 20px;
     height: 20px;
   }
+  .output-content {
+    font-size: 0.8rem;
+    max-height: 200px;
+  }
 }
 
 @media (max-width: 400px) {
@@ -358,4 +393,88 @@ body {
   .upload-section .file-hint {
     white-space: normal;
   }
+}
+
+/* ----- Waveform Display ----- */
+.waveform-container {
+  width: 100%;
+  overflow: auto;
+  border: 1px solid #e9eef4;
+  border-radius: 10px;
+  background: #ffffff;
+  padding: 8px 0;
+  margin-top: 8px;
+}
+
+.waveform-container canvas {
+  display: block;
+  height: auto;
+}
+
+.waveform-placeholder {
+  padding: 1.2rem;
+  text-align: center;
+  color: #8f9fb3;
+  background: #f8faff;
+  border-radius: 10px;
+  border: 1px dashed #d5dfea;
+  font-size: 0.9rem;
+}
+
+/* Adjust output section spacing */
+.output-section {
+  margin-top: 2rem;
+  padding-top: 1.2rem;
+  border-top: 1px solid #eef2f7;
+}
+
+.output-section h3 {
+  font-family: 'Inter', sans-serif;
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: #1a2a41;
+  margin-bottom: 0.6rem;
+}
+
+/* ----- Range Controls ----- */
+.range-controls {
+  display: flex;
+  gap: 1.5rem;
+  margin-top: 0.8rem;
+  margin-bottom: 0.8rem;
+  padding: 0.6rem 0;
+  border-top: 1px solid #eef2f7;
+  flex-wrap: wrap;
+}
+
+.range-input-group {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.range-input-group label {
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: #1e2b3c;
+}
+
+.range-input-group input {
+  width: 70px;
+  padding: 0.3rem 0.5rem;
+  border: 1px solid #d5dfea;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  background: #fafcfe;
+  transition: border-color 0.2s;
+}
+
+.range-input-group input:focus {
+  outline: none;
+  border-color: #1f3a5f;
+}
+
+.range-input-group input:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
