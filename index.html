@@ -1,21 +1,479 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-    <style>a{background-color: blanchedalmond;}</style>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>RISP Neuroprocessor · Workflow</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&display=swap" rel="stylesheet" />
+
+    <style>
+        /* ── Reset & base ── */
+        *,
+        *::before,
+        *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background: #f4f6f9;
+            padding: 1.5rem;
+            color: #1e293b;
+        }
+
+        /* ── Main card ── */
+        .flow-wrapper {
+            width: 100%;
+            max-width: 820px;
+            background: #ffffff;
+            border-radius: 1.5rem;
+            padding: 2.5rem 2.5rem 2rem;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04);
+            border: 1px solid #e9edf2;
+            transition: box-shadow 0.2s ease;
+        }
+
+        .flow-wrapper:hover {
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+        }
+
+        /* ── Header ── */
+        .page-header {
+            text-align: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1.2rem;
+            border-bottom: 1px solid #e9edf2;
+        }
+
+        .page-header h1 {
+            font-family: "Source Serif 4", Georgia, serif;
+            font-weight: 600;
+            font-size: 2rem;
+            letter-spacing: -0.02em;
+            color: #0b1b33;
+            margin-bottom: 0.2rem;
+        }
+
+        .page-header .subhead {
+            font-size: 0.85rem;
+            color: #4b5a6e;
+            font-weight: 400;
+            letter-spacing: 0.02em;
+        }
+
+        /* ── Flowchart layout ── */
+        .flowchart {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.2rem;
+        }
+
+        /* ── Step container ── */
+        .step {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+            position: relative;
+        }
+
+        .step-label {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 0.6rem;
+            font-size: 0.7rem;
+            font-weight: 500;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            color: #6b7a8e;
+            user-select: none;
+        }
+
+        .step-label .num {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 1.4rem;
+            height: 1.4rem;
+            border-radius: 50%;
+            background: #eef2f6;
+            border: 1px solid #d0d8e0;
+            font-size: 0.6rem;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        .step-label .num.active {
+            background: #1e3a5f;
+            border-color: #1e3a5f;
+            color: #fff;
+        }
+
+        /* ── Buttons ── */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            padding: 0.75rem 2.2rem;
+            border-radius: 1.2rem;
+            font-family: "Inter", sans-serif;
+            font-size: 0.9rem;
+            font-weight: 500;
+            text-decoration: none;
+            background: #ffffff;
+            color: #1e293b;
+            border: 1px solid #d0d8e0;
+            transition: all 0.15s ease;
+            cursor: pointer;
+            position: relative;
+            min-width: 200px;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02);
+        }
+
+        .btn:hover {
+            background: #f8fafc;
+            border-color: #a0b0c0;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+        }
+
+        .btn:active {
+            transform: translateY(0px);
+            box-shadow: none;
+        }
+
+        .btn .icon {
+            font-size: 1rem;
+            opacity: 0.6;
+        }
+
+        /* Primary buttons (Design Network, Simulation Output) */
+        .btn-primary {
+            background: #1e3a5f;
+            border-color: #1e3a5f;
+            color: #ffffff;
+            min-width: 240px;
+            padding: 0.85rem 2.4rem;
+            font-weight: 500;
+            box-shadow: 0 2px 4px rgba(30, 58, 95, 0.10);
+        }
+
+        .btn-primary:hover {
+            background: #15304f;
+            border-color: #15304f;
+            color: #ffffff;
+            box-shadow: 0 6px 16px rgba(30, 58, 95, 0.15);
+            transform: translateY(-2px);
+        }
+
+        .btn-primary:active {
+            transform: translateY(0px);
+            box-shadow: 0 2px 4px rgba(30, 58, 95, 0.10);
+        }
+
+        /* Secondary buttons (Dense / Sparse) */
+        .btn-secondary {
+            background: #ffffff;
+            border-color: #d0d8e0;
+            min-width: 180px;
+            padding: 0.7rem 1.6rem;
+            font-size: 0.85rem;
+            flex: 1;
+        }
+
+        .btn-secondary:hover {
+            background: #f1f4f9;
+            border-color: #a0b0c0;
+        }
+
+        /* Dense / Sparse subtle differentiation */
+        .btn-dense:hover {
+            border-color: #2c6fbb;
+            background: #f0f5fe;
+        }
+
+        .btn-sparse:hover {
+            border-color: #7b4c9e;
+            background: #f5f0fc;
+        }
+
+        /* ── Row for two buttons ── */
+        .step-row {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: center;
+            gap: 1.2rem;
+            width: 100%;
+            max-width: 520px;
+            margin: 0.1rem 0 0.1rem;
+        }
+
+        .step-row .btn {
+            flex: 1 1 180px;
+            min-width: 150px;
+        }
+
+        /* ── Arrows ── */
+        .arrow {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 2.4rem;
+            color: #9aaec2;
+            font-size: 1.2rem;
+            line-height: 1;
+            user-select: none;
+            position: relative;
+        }
+
+        .arrow::after {
+            content: "";
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 1px;
+            height: 100%;
+            background: #d0d8e0;
+            opacity: 0.4;
+        }
+
+        .arrow svg {
+            position: relative;
+            z-index: 1;
+            display: block;
+            width: 20px;
+            height: 20px;
+            fill: none;
+            stroke: #9aaec2;
+            stroke-width: 1.6;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
+        .arrow .line {
+            stroke: #c0cedc;
+        }
+
+        .arrow .head {
+            stroke: #9aaec2;
+        }
+
+        /* ── Footer attribution ── */
+        .footer-attribution {
+            margin-top: 2.2rem;
+            padding-top: 1.4rem;
+            border-top: 1px solid #e9edf2;
+            text-align: center;
+            font-size: 0.7rem;
+            color: #6b7a8e;
+            line-height: 1.6;
+        }
+
+        .footer-attribution a {
+            color: #1e3a5f;
+            text-decoration: none;
+            font-weight: 500;
+            border-bottom: 1px dotted #c0cedc;
+        }
+
+        .footer-attribution a:hover {
+            color: #15304f;
+            border-bottom-color: #1e3a5f;
+        }
+
+        /* ── Responsive ── */
+        @media (max-width: 640px) {
+            .flow-wrapper {
+                padding: 1.8rem 1.2rem 1.5rem;
+                border-radius: 1.2rem;
+            }
+
+            .page-header h1 {
+                font-size: 1.6rem;
+            }
+
+            .btn {
+                min-width: 140px;
+                padding: 0.65rem 1.4rem;
+                font-size: 0.8rem;
+                border-radius: 1rem;
+            }
+
+            .btn-primary {
+                min-width: 180px;
+                padding: 0.75rem 1.8rem;
+                font-size: 0.85rem;
+            }
+
+            .step-row {
+                gap: 0.8rem;
+                max-width: 100%;
+            }
+
+            .step-row .btn {
+                flex: 1 1 130px;
+                min-width: 110px;
+                padding: 0.6rem 1rem;
+                font-size: 0.75rem;
+            }
+
+            .arrow {
+                height: 2rem;
+            }
+
+            .arrow svg {
+                width: 16px;
+                height: 16px;
+            }
+
+            .step-label {
+                font-size: 0.6rem;
+                margin-bottom: 0.5rem;
+            }
+
+            .step-label .num {
+                width: 1.2rem;
+                height: 1.2rem;
+                font-size: 0.5rem;
+            }
+
+            .footer-attribution {
+                font-size: 0.65rem;
+                margin-top: 1.6rem;
+                padding-top: 1rem;
+            }
+        }
+
+        @media (max-width: 420px) {
+            .flow-wrapper {
+                padding: 1.2rem 0.8rem 1rem;
+                border-radius: 1rem;
+            }
+
+            .page-header h1 {
+                font-size: 1.3rem;
+            }
+
+            .btn {
+                min-width: 100px;
+                padding: 0.5rem 0.8rem;
+                font-size: 0.7rem;
+                border-radius: 0.8rem;
+            }
+
+            .btn-primary {
+                min-width: 130px;
+                padding: 0.6rem 1.2rem;
+                font-size: 0.75rem;
+            }
+
+            .step-row .btn {
+                flex: 1 1 90px;
+                min-width: 80px;
+                padding: 0.5rem 0.6rem;
+                font-size: 0.65rem;
+            }
+
+            .step-row {
+                gap: 0.5rem;
+            }
+        }
+    </style>
 </head>
 
 <body>
-    <a href="https://neuromorphic-processor-ui-snpv.vercel.app">design-network</a>
-    <a href="https://neuromorphic-processor-ui.vercel.app">design-input-spike-dense</a>
-    <a href="https://neuromorphic-processor-ui-nm8j.vercel.app">design-input-spike-sparse</a>
-    <a href="https://neuromorphic-processor-ui-36kj.vercel.app">final-result</a>
+
+    <div class="flow-wrapper">
+
+        <!-- ─── Header ─── -->
+        <header class="page-header">
+            <h1>RISP Neuroprocessor</h1>
+        </header>
+
+        <!-- ─── Flowchart ─── -->
+        <div class="flowchart">
+
+            <!-- Step 1: Design Network -->
+            <div class="step">
+                <div class="step-label">
+                    <span class="num active">1</span>
+                    <span>Design</span>
+                </div>
+                <a href="https://neuromorphic-processor-ui-snpv.vercel.app" class="btn btn-primary">
+                    
+                    Create Network
+                </a>
+            </div>
+
+            <!-- Arrow 1 -->
+            <div class="arrow">
+                <svg viewBox="0 0 24 24">
+                    <line x1="12" y1="4" x2="12" y2="16" class="line" stroke="currentColor" />
+                    <polyline points="8 12 12 16 16 12" class="head" stroke="currentColor" fill="none" />
+                </svg>
+            </div>
+
+            <!-- Step 2: Two options (Dense / Sparse) -->
+            <div class="step">
+                <div class="step-label">
+                    <span class="num active">2</span>
+                    <span>Generate input</span>
+                </div>
+                <div class="step-row">
+                    <a href="https://neuromorphic-processor-ui.vercel.app" class="btn btn-primary">
+                        
+                        Dense Spike
+                    </a>
+                    <a href="https://neuromorphic-processor-ui-nm8j.vercel.app" class="btn btn-primary">
+                        
+                        Sparse Spike
+                    </a>
+                </div>
+            </div>
+
+            <!-- Arrow 2 -->
+            <div class="arrow">
+                <svg viewBox="0 0 24 24">
+                    <line x1="12" y1="4" x2="12" y2="16" class="line" stroke="currentColor" />
+                    <polyline points="8 12 12 16 16 12" class="head" stroke="currentColor" fill="none" />
+                </svg>
+            </div>
+
+            <!-- Step 3: Simulation Output -->
+            <div class="step">
+                <div class="step-label">
+                    <span class="num active">3</span>
+                    <span>Simulate</span>
+                </div>
+                <a href="https://neuromorphic-processor-ui-36kj.vercel.app" class="btn btn-primary">
+                    
+                        Visualize Output
+                </a>
+            </div>
+
+        </div>
+
+        <!-- ─── Footer attribution ─── -->
+        <div class="footer-attribution">
+            Open‑source part of the
+            <a href="https://github.com/TENNLab-UTK/framework-open" target="_blank" rel="noopener noreferrer">
+                TENNLab Exploratory Neuromorphic Framework
+            </a>
+            
+        </div>
+
+    </div>
 
 </body>
-
 </html>
-
-

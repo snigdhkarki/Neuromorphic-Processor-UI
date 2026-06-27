@@ -263,3 +263,42 @@ h1 {
         padding: 4px 4px;
     }
 }
+
+.home-btn {
+  position: fixed;
+  top: 1.5rem;          /* aligns with body padding */
+  right: 1.5rem;
+  z-index: 1000;        /* stays above everything */
+  
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: transparent;
+  border: 1px solid #b0c4db;  /* subtle grey */
+  color: #1f3a5f;            /* dark colour for the icon */
+  text-decoration: none;
+  transition: background 0.15s, transform 0.1s;
+}
+
+.home-btn:hover {
+  background: #f0f4f8;       /* very light grey on hover */
+  transform: scale(1.05);
+}
+
+.home-btn:active {
+  transform: scale(0.95);
+}
+
+.home-btn svg {
+  display: block;
+  color: inherit;            /* keeps the icon black/dark */
+}
+
+/* ----- Title (no longer sharing a row) ----- */
+.page-title {
+  margin-bottom: 0.25rem;
+  /* keep other h1 styles (font-size, weight, etc.) unchanged */
+}

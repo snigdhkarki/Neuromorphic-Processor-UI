@@ -12,14 +12,54 @@ const Canvas = ({
   onNodeClick,
   onNodeMouseDown,
   onEdgeClick,
+  propertyDefs,   // new prop: { nodeProps, edgeProps }
 }) => {
+  // Helper to build tooltip text for a node
+  const getNodeTooltip = (node) => {
+    const { nodeProps } = propertyDefs;
+    const label = node.label || node.id;
+    let text = `Node ${label}\n`;
+    if (nodeProps.length === 0) {
+      text += 'No properties defined.';
+    } else {
+      nodeProps.forEach(prop => {
+        const value = node.properties[prop.name] !== undefined
+          ? node.properties[prop.name]
+          : `${prop.max} (default)`;
+        text += `${prop.name}: ${value}\n`;
+      });
+    }
+    return text.trim();
+  };
+
+  // Helper to build tooltip text for an edge
+  const getEdgeTooltip = (edge) => {
+    const { edgeProps } = propertyDefs;
+    const sourceNode = nodes.find(n => n.id === edge.source);
+    const targetNode = nodes.find(n => n.id === edge.target);
+    const sourceLabel = sourceNode ? (sourceNode.label || sourceNode.id) : edge.source;
+    const targetLabel = targetNode ? (targetNode.label || targetNode.id) : edge.target;
+    let text = `Edge ${sourceLabel} → ${targetLabel}\n`;
+    if (edgeProps.length === 0) {
+      text += 'No properties defined.';
+    } else {
+      edgeProps.forEach(prop => {
+        const value = edge.properties[prop.name] !== undefined
+          ? edge.properties[prop.name]
+          : `${prop.max} (default)`;
+        text += `${prop.name}: ${value}\n`;
+      });
+    }
+    return text.trim();
+  };
+
   const renderEdges = () => {
     return edges.map((edge, idx) => {
       const sourceNode = nodes.find((n) => n.id === edge.source);
       const targetNode = nodes.find((n) => n.id === edge.target);
       if (!sourceNode || !targetNode) return null;
 
-      const propTooltip = `Edge ${sourceNode.label || sourceNode.id} → ${targetNode.label || targetNode.id}\nProperties:\n${formatProperties(edge.properties)}`;
+      const tooltipText = getEdgeTooltip(edge);
 
       if (sourceNode.id === targetNode.id) {
         const x = sourceNode.x;
@@ -41,7 +81,7 @@ const Canvas = ({
           <g key={`edge-${idx}`} onClick={onEdgeClick(idx)} style={{ cursor: mode === 'deleteEdge' || mode === 'addEdgeProp' ? 'pointer' : 'default' }}>
             <path d={d} stroke="transparent" strokeWidth="12" fill="none" />
             <path d={d} stroke="#666" strokeWidth="2" fill="none" markerEnd="url(#arrowhead)" />
-            <title>{propTooltip}</title>
+            <title>{tooltipText}</title>
           </g>
         );
       }
@@ -80,7 +120,7 @@ const Canvas = ({
           <g key={`edge-${idx}`} onClick={onEdgeClick(idx)} style={{ cursor: mode === 'deleteEdge' || mode === 'addEdgeProp' ? 'pointer' : 'default' }}>
             <path d={pathData} stroke="transparent" strokeWidth="12" fill="none" />
             <path d={pathData} stroke="#666" strokeWidth="2" fill="none" markerEnd="url(#arrowhead)" />
-            <title>{propTooltip}</title>
+            <title>{tooltipText}</title>
           </g>
         );
       } else {
@@ -88,7 +128,7 @@ const Canvas = ({
           <g key={`edge-${idx}`} onClick={onEdgeClick(idx)} style={{ cursor: mode === 'deleteEdge' || mode === 'addEdgeProp' ? 'pointer' : 'default' }}>
             <line x1={x1} y1={y1} x2={x2} y2={y2} stroke="transparent" strokeWidth="12" />
             <line x1={x1} y1={y1} x2={x2} y2={y2} stroke="#666" strokeWidth="2" markerEnd="url(#arrowhead)" />
-            <title>{propTooltip}</title>
+            <title>{tooltipText}</title>
           </g>
         );
       }
@@ -125,7 +165,7 @@ const Canvas = ({
       }
 
       const displayText = node.label || node.id;
-      const propTooltip = `Node ${displayText}\nProperties:\n${formatProperties(node.properties)}`;
+      const tooltipText = getNodeTooltip(node);
 
       return (
         <g
@@ -154,7 +194,7 @@ const Canvas = ({
           >
             {displayText}
           </text>
-          <title>{propTooltip}</title>
+          <title>{tooltipText}</title>
         </g>
       );
     });

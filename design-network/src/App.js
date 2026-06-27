@@ -1,10 +1,11 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import './App.css';
 import { EMPTY_NET_FILES } from './constants';
 import { getSvgCoordinates, nodeHasEdges } from './utils';
 import Toolbar from './components/Toolbar';
 import Canvas from './components/Canvas';
 import LogPanel from './components/LogPanel';
+import PropertyModal from './components/PropertyModal';
 
 function App() {
   const [nodes, setNodes] = useState([]);
@@ -14,10 +15,41 @@ function App() {
   const [nextId, setNextId] = useState(1);
   const [logs, setLogs] = useState([]);
   const [selectedFile, setSelectedFile] = useState('risp_1_empty.txt');
+  const [propertyDefs, setPropertyDefs] = useState({ nodeProps: [], edgeProps: [], discrete: false });
+
+  const [modalState, setModalState] = useState({
+    open: false,
+    propertyType: 'node',
+    target: null,
+    mode: 'single',
+  });
 
   const svgRef = useRef(null);
   const dragRef = useRef({ nodeId: null, offsetX: 0, offsetY: 0 });
   const isDraggingRef = useRef(false);
+
+  // Load property definitions
+  useEffect(() => {
+    if (!selectedFile) return;
+    fetch(`/emptyNets/${selectedFile}`)
+      .then(res => {
+        if (!res.ok) throw new Error('Failed to fetch file');
+        return res.json();
+      })
+      .then(data => {
+        const normalizeProps = (props) =>
+          props.map(p => ({
+            ...p,
+            min: p.min_value,
+            max: p.max_value,
+          }));
+        const nodeProps = normalizeProps(data.Properties?.node_properties || []);
+        const edgeProps = normalizeProps(data.Properties?.edge_properties || []);
+        const discrete = data.Associated_Data?.proc_params?.discrete ?? false;
+        setPropertyDefs({ nodeProps, edgeProps, discrete });
+      })
+      .catch(err => console.error('Failed to load property definitions:', err));
+  }, [selectedFile]);
 
   // ---- Log helper ----
   const addLog = (raw) => {
@@ -77,6 +109,52 @@ function App() {
     dragRef.current.nodeId = null;
     document.removeEventListener('mousemove', handleMouseMove);
     document.removeEventListener('mouseup', handleMouseUp);
+  };
+
+  // ---- Modal functions ----
+  const openPropertyModal = (propertyType, target = null, mode = 'single') => {
+    setModalState({ open: true, propertyType, target, mode });
+  };
+
+  const closePropertyModal = () => {
+    setModalState({ open: false, propertyType: 'node', target: null, mode: 'single' });
+  };
+
+  const handleModalConfirm = (propName, value) => {
+    const { propertyType, target, mode } = modalState;
+    if (mode === 'single') {
+      if (propertyType === 'node') {
+        const updatedNodes = nodes.map(n =>
+          n.id === target ? { ...n, properties: { ...n.properties, [propName]: value } } : n
+        );
+        setNodes(updatedNodes);
+        addLog(`SNP ${target} ${propName} ${value}`);
+      } else { // edge
+        const updatedEdges = edges.map((e, idx) =>
+          idx === target ? { ...e, properties: { ...e.properties, [propName]: value } } : e
+        );
+        setEdges(updatedEdges);
+        const edge = edges[target];
+        addLog(`SEP ${edge.source} ${edge.target} ${propName} ${value}`);
+      }
+    } else { // all
+      if (propertyType === 'node') {
+        const updatedNodes = nodes.map(n => ({
+          ...n,
+          properties: { ...n.properties, [propName]: value }
+        }));
+        setNodes(updatedNodes);
+        addLog(`SNP_ALL ${propName} ${value}`);
+      } else {
+        const updatedEdges = edges.map(e => ({
+          ...e,
+          properties: { ...e.properties, [propName]: value }
+        }));
+        setEdges(updatedEdges);
+        addLog(`SEP_ALL ${propName} ${value}`);
+      }
+    }
+    closePropertyModal();
   };
 
   // ---- Click handlers ----
@@ -183,22 +261,8 @@ function App() {
       setMode('idle');
     }
     else if (mode === 'addNodeProp') {
-      const key = prompt('Enter property name:');
-      if (key !== null && key.trim() !== '') {
-        const value = prompt(`Enter value for "${key}":`);
-        if (value !== null) {
-          const trimmedKey = key.trim();
-          const trimmedValue = value.trim() || '';
-          const updated = nodes.map((n) =>
-            n.id === nodeId
-              ? { ...n, properties: { ...n.properties, [trimmedKey]: trimmedValue } }
-              : n
-          );
-          setNodes(updated);
-          addLog(`SNP ${nodeId} ${trimmedKey} ${trimmedValue}`);
-        }
-      }
-      setMode('idle');
+      // Open modal for single node
+      openPropertyModal('node', nodeId, 'single');
     }
   };
 
@@ -230,25 +294,34 @@ function App() {
       setMode('idle');
     }
     else if (mode === 'addEdgeProp') {
-      const edge = edges[edgeIndex];
-      if (!edge) return;
-      const key = prompt('Enter property name:');
-      if (key !== null && key.trim() !== '') {
-        const value = prompt(`Enter value for "${key}":`);
-        if (value !== null) {
-          const trimmedKey = key.trim();
-          const trimmedValue = value.trim() || '';
-          const updatedEdges = edges.map((e, idx) =>
-            idx === edgeIndex
-              ? { ...e, properties: { ...e.properties, [trimmedKey]: trimmedValue } }
-              : e
-          );
-          setEdges(updatedEdges);
-          addLog(`SEP ${edge.source} ${edge.target} ${trimmedKey} ${trimmedValue}`);
-        }
-      }
-      setMode('idle');
+      // Open modal for single edge
+      openPropertyModal('edge', edgeIndex, 'single');
     }
+  };
+
+  // ---- "Set All" handlers ----
+  const startSetAllNodeProp = () => {
+    if (nodes.length === 0) {
+      alert('No nodes exist to set properties.');
+      return;
+    }
+    if (propertyDefs.nodeProps.length === 0) {
+      alert('No node property definitions available.');
+      return;
+    }
+    openPropertyModal('node', null, 'all');
+  };
+
+  const startSetAllEdgeProp = () => {
+    if (edges.length === 0) {
+      alert('No edges exist to set properties.');
+      return;
+    }
+    if (propertyDefs.edgeProps.length === 0) {
+      alert('No edge property definitions available.');
+      return;
+    }
+    openPropertyModal('edge', null, 'all');
   };
 
   // ---- Mode controls ----
@@ -315,8 +388,8 @@ function App() {
     if (mode === 'setInput') return 'Click a node to set it as input (green). Nodes already input or output cannot be changed.';
     if (mode === 'setOutput') return 'Click a node to set it as output (red). Nodes already output or input cannot be changed.';
     if (mode === 'renameNode') return 'Click a node to rename it.';
-    if (mode === 'addNodeProp') return 'Click a node to add a property.';
-    if (mode === 'addEdgeProp') return 'Click an edge to add a property.';
+    if (mode === 'addNodeProp') return 'Click a node to open the property dialog.';
+    if (mode === 'addEdgeProp') return 'Click an edge to open the property dialog.';
     return 'Select a tool from the buttons above.';
   };
 
@@ -339,6 +412,8 @@ function App() {
         onStartRenameNode={startRenameNode}
         onStartAddNodeProp={startAddNodeProp}
         onStartAddEdgeProp={startAddEdgeProp}
+        onStartSetAllNodeProp={startSetAllNodeProp}
+        onStartSetAllEdgeProp={startSetAllEdgeProp}
         statusMessage={getStatusMessage()}
         emptyNetFiles={EMPTY_NET_FILES}
       />
@@ -354,9 +429,20 @@ function App() {
           onNodeClick={handleNodeClick}
           onNodeMouseDown={handleNodeMouseDown}
           onEdgeClick={handleEdgeClick}
+          propertyDefs={propertyDefs}
         />
       </div>
       <LogPanel logs={logs} />
+
+      <PropertyModal
+        isOpen={modalState.open}
+        onClose={closePropertyModal}
+        onConfirm={handleModalConfirm}
+        propertyDefs={modalState.propertyType === 'node' ? propertyDefs.nodeProps : propertyDefs.edgeProps}
+        discrete={propertyDefs.discrete}
+        targetType={modalState.propertyType}
+        mode={modalState.mode}
+      />
     </div>
   );
 }
