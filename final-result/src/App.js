@@ -14,8 +14,7 @@ function App() {
   const [waveformStart, setWaveformStart] = useState(0);
   const [waveformEnd, setWaveformEnd] = useState(10);
 
-  // const API_URL = process.env.REACT_APP_API_URL;
-  const API_URL = "http://127.0.0.1:8000";
+ const API_URL = process.env.REACT_APP_API_URL;
 
   const handleNetworkChange = (e) => {
     const selected = e.target.files[0];
