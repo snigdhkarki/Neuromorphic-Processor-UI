@@ -96,14 +96,14 @@ function App() {
       content += `ASR ${node.name} ${raster}\n`;
     });
     content += `RUN ${runtimeInt}\n`;
-    content += 'GSR';
-content += 'OLF';
-content += 'OC';
-content += 'OT';
-content += 'NCH';
-content += 'NLFJ';
-content += 'NCJ';
-content += 'NCHJ';
+    content += 'GSR \n';
+content += 'OLF \n';
+content += 'OC \n';
+content += 'OT \n';
+content += 'NCH \n';
+content += 'NLFJ \n';
+content += 'NCJ \n';
+content += 'NCHJ \n';
 
     // Create and download .txt file
     const blob = new Blob([content], { type: 'text/plain' });
