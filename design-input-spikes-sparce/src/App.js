@@ -164,7 +164,7 @@ const App = () => {
       </svg>
     </a>
         <div className="app">
-            <h1>Design Sparce Input Spike</h1>
+            <h1>Design Sparse Input Spike</h1>
 
             <div className="controls">
                 {!showNodeInput ? (
