@@ -111,7 +111,7 @@ const PropertyModal = ({
           </label>
           <input
             type="text"
-            value={value}
+            defaultValue=""
             onChange={(e) => setValue(e.target.value)}
             style={{
               width: '100%',
