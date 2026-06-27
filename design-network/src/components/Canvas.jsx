@@ -1,6 +1,5 @@
 import React from 'react';
-import { getEdgeEndpoints, formatProperties } from '../utils';
-
+import { getEdgeEndpoints } from '../utils';
 const Canvas = ({
   svgRef,
   nodes,
