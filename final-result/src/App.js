@@ -76,14 +76,14 @@ function App() {
       const blob = await response.blob();
 
       const zip = await JSZip.loadAsync(blob);
-      const file = zip.file('finalout.txt');
+      const file = zip.file('Result.txt');
       if (file) {
         const content = await file.async('string');
         setOutputText(content);
         // Optionally auto-set range to match binary length (optional)
         // e.g., find max length and set end accordingly
       } else {
-        setOutputText('⚠️ finalout.txt not found in the downloaded ZIP.');
+        setOutputText('⚠️ Result.txt not found in the downloaded ZIP.');
       }
 
       // Trigger download
