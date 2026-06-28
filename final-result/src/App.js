@@ -4,6 +4,8 @@ import JSZip from 'jszip';
 import WaveformDisplay from './WaveformDisplay';
 import './App.css';
 
+ const API_URL = process.env.REACT_APP_API_URL;
+
 function App() {
   const [networkFile, setNetworkFile] = useState(null);
   const [spikeFile, setSpikeFile] = useState(null);
@@ -14,7 +16,7 @@ function App() {
   const [waveformStart, setWaveformStart] = useState(0);
   const [waveformEnd, setWaveformEnd] = useState(10);
 
- const API_URL = process.env.REACT_APP_API_URL;
+
 
  useEffect(() => {
   // Ping backend to warm up (cold start on Render)
