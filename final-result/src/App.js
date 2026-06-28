@@ -20,7 +20,10 @@ function App() {
   // Ping backend to warm up (cold start on Render)
   const pingBackend = async () => {
     try {
-      await fetch(`${API_URL}/ping`);
+      const response = await fetch(`${API_URL}/ping`);      
+      if (response.ok) {
+        console.log('Ping successful');
+      }
     } catch (err) {
       // Ignore – just a warm‑up call
       console.log('Ping failed:', err);
