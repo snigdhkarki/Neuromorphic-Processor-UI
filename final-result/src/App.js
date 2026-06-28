@@ -16,28 +16,21 @@ function App() {
   const [waveformStart, setWaveformStart] = useState(0);
   const [waveformEnd, setWaveformEnd] = useState(10);
 
-  // Extract the maximum time from the simulation results.
-  // Looks for lines containing "spike times:" or "last fire time:".
+  // Get max time from the first INPUT line's binary string length - 1
   const getMaxTimeFromText = (text) => {
     if (!text) return 0;
     const lines = text.split('\n');
-    let maxTime = 0;
-
     for (const line of lines) {
-      if (line.includes('spike times:') || line.includes('last fire time:')) {
-        // Extract all numbers (integers and decimals)
-        const matches = line.match(/\d+\.?\d*/g);
-        if (matches) {
-          for (const match of matches) {
-            const num = parseFloat(match);
-            if (!isNaN(num) && num > maxTime) {
-              maxTime = num;
-            }
-          }
+      if (line.includes('INPUT')) {
+        const parts = line.split(':');
+        if (parts.length >= 2) {
+          const binaryStr = parts[1].trim();
+          // Return length - 1 (since times often start at 0 or have one extra digit)
+          return Math.max(0, binaryStr.length - 1);
         }
       }
     }
-    return maxTime;
+    return 0;
   };
 
   // Update waveformEnd when new outputText is loaded
