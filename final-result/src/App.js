@@ -1,5 +1,5 @@
 // App.js
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import JSZip from 'jszip';
 import WaveformDisplay from './WaveformDisplay';
 import './App.css';
@@ -15,6 +15,19 @@ function App() {
   const [waveformEnd, setWaveformEnd] = useState(10);
 
  const API_URL = process.env.REACT_APP_API_URL;
+
+ useEffect(() => {
+  // Ping backend to warm up (cold start on Render)
+  const pingBackend = async () => {
+    try {
+      await fetch(`${API_URL}/ping`);
+    } catch (err) {
+      // Ignore – just a warm‑up call
+      console.log('Ping failed:', err);
+    }
+  };
+  pingBackend();
+}, []);
 
   const handleNetworkChange = (e) => {
     const selected = e.target.files[0];
