@@ -4,7 +4,7 @@ import JSZip from 'jszip';
 import WaveformDisplay from './WaveformDisplay';
 import './App.css';
 
- const API_URL = process.env.REACT_APP_API_URL;
+const API_URL = process.env.REACT_APP_API_URL;
 
 function App() {
   const [networkFile, setNetworkFile] = useState(null);
@@ -16,27 +16,52 @@ function App() {
   const [waveformStart, setWaveformStart] = useState(0);
   const [waveformEnd, setWaveformEnd] = useState(10);
 
+  // Helper: parse the maximum time from the waveform text
+  const getMaxTimeFromText = (text) => {
+    if (!text) return 0;
+    const lines = text.split('\n').filter(line => line.trim() !== '');
+    let maxTime = 0;
+    for (const line of lines) {
+      const parts = line.trim().split(/\s+/);
+      if (parts.length > 0) {
+        const num = parseFloat(parts[0]);
+        if (!isNaN(num) && num > maxTime) {
+          maxTime = num;
+        }
+      }
+    }
+    return maxTime;
+  };
 
-useEffect(() => {
+  // Update waveformEnd when new outputText is loaded
+  useEffect(() => {
+    if (outputText) {
+      const maxTime = getMaxTimeFromText(outputText);
+      if (maxTime > 0) {
+        setWaveformEnd(maxTime);
+        // Ensure start doesn't exceed end
+        if (waveformStart > maxTime) {
+          setWaveformStart(0);
+        }
+      }
+    }
+  }, [outputText, waveformStart]);
+
+  // Ping backend on mount and every 60 seconds
+  useEffect(() => {
     const pingBackend = async () => {
       try {
         const response = await fetch(`${API_URL}/ping`);
-        if (response.ok){
-        console.log('ping successful');
-      }
+        if (response.ok) {
+          console.log('ping successful');
+        }
       } catch (err) {
-        // Silently ignore – just a warm‑up call
         console.log('Backend ping failed:', err);
       }
     };
 
-    // Immediate ping on mount
     pingBackend();
-
-    // Set up interval
-    const intervalId = setInterval(pingBackend, 60000); // 60 seconds
-
-    // Cleanup on unmount
+    const intervalId = setInterval(pingBackend, 60000);
     return () => clearInterval(intervalId);
   }, []);
 
@@ -98,19 +123,15 @@ useEffect(() => {
       }
 
       const blob = await response.blob();
-
       const zip = await JSZip.loadAsync(blob);
       const file = zip.file('Result.txt');
       if (file) {
         const content = await file.async('string');
         setOutputText(content);
-        // Optionally auto-set range to match binary length (optional)
-        // e.g., find max length and set end accordingly
       } else {
         setOutputText('⚠️ Result.txt not found in the downloaded ZIP.');
       }
 
-      // Trigger download
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
@@ -224,7 +245,7 @@ useEffect(() => {
           </div>
         </div>
 
-        {/* ---- Waveform Output ---- */}
+        {/* Waveform Output */}
         {outputText && (
           <div className="output-section">
             <h3>Waveform Output</h3>
