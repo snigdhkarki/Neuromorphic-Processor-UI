@@ -1,29 +1,37 @@
-TENNLab RISP GUI Simulator
+<h1>TENNLab RISP GUI Simulator</h1>
+
 An open-source, interactive web-based Graphical User Interface (GUI) simulator for the RISP Neuroprocessor, built on top of the TENNLab Exploratory Neuromorphic Framework.
 
-While the official TENNLab framework provides robust Command Line Interface (CUI) tools (network_tool and processor_tool_risp), this project bridges the gap by offering an intuitive, visual platform to design, simulate, and analyze spiking neural networks (SNNs) in real-time.
+While the official TENNLab framework provides robust Command Line Interface (CUI) tools (`network_tool` and `processor_tool_risp`), this project bridges the gap by offering an intuitive, visual platform to design, simulate, and analyze spiking neural networks (SNNs) in real-time.
 
-Live Demo link:
-neuromorphic-processor-ui-dashboard.vercel.app
+---
 
-Features
-Visual Network design: Interactive rendering of spiking neural network topologies, neurons, and synaptic connections.
+<h2> Live Demo Link</h2>
 
-Input Spike design: Ability to design both dense input spike and sparse input spikes
+* **URL:** [neuromorphic-processor-ui-dashboard.vercel.app](https://neuromorphic-processor-ui-dashboard.vercel.app)
 
-Easy simulation: Easily find the result of certain input spike on a SNN
+---
 
-Frontend
-Framework: React 
+<h2> Features</h2>
 
-Deployment: Vercel
+* **Visual Network design:** Interactive rendering of spiking neural network topologies, neurons, and synaptic connections.
+* **Input Spike design:** Ability to design both dense input spike and sparse input spikes.
+* **Easy simulation:** Easily find the result of certain input spike on a SNN.
 
-Backend
-Core Engine: TENNLab C++ code
+---
 
-Containerization: Docker (compiles and packages the C++ framework dependencies flawlessly)
+<h2>Tech Stack & Deployment</h2>
 
-Deployment: Render
+<h3>Frontend</h3>
+
+* **Framework:** React 
+* **Deployment:** Vercel
+
+<h3>Backend</h3>
+
+* **Core Engine:** TENNLab C++ code
+* **Containerization:** Docker (compiles and packages the C++ framework dependencies flawlessly)
+* **Deployment:** Render
 
 This image shows the main landing page of the RISP Neuroprocessor dashboard outlining a clear three-step workflow for network design, input generation, and simulation.
 <img width="940" height="649" alt="image" src="https://github.com/user-attachments/assets/296dac42-3b9f-43bc-a7c1-0f3295b89c71" />
