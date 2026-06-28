@@ -7,6 +7,8 @@ import Canvas from './components/Canvas';
 import LogPanel from './components/LogPanel';
 import PropertyModal from './components/PropertyModal';
 
+const API_URL = process.env.REACT_APP_API_URL;
+
 function App() {
   const [nodes, setNodes] = useState([]);
   const [edges, setEdges] = useState([]);
@@ -16,6 +18,30 @@ function App() {
   const [logs, setLogs] = useState([]);
   const [selectedFile, setSelectedFile] = useState('risp_1_empty.txt');
   const [propertyDefs, setPropertyDefs] = useState({ nodeProps: [], edgeProps: [], discrete: false });
+
+  useEffect(() => {
+    const pingBackend = async () => {
+      try {
+        const response = await fetch(`${API_URL}/ping`);
+        if (response.ok){
+        console.log('ping successful');
+      }
+      } catch (err) {
+        // Silently ignore – just a warm‑up call
+        console.log('Backend ping failed:', err);
+      }
+    };
+
+    // Immediate ping on mount
+    pingBackend();
+
+    // Set up interval
+    const intervalId = setInterval(pingBackend, 60000); // 60 seconds
+
+    // Cleanup on unmount
+    return () => clearInterval(intervalId);
+  }, []);
+
 
   const [modalState, setModalState] = useState({
     open: false,

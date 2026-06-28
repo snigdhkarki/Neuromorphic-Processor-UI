@@ -17,22 +17,28 @@ function App() {
   const [waveformEnd, setWaveformEnd] = useState(10);
 
 
-
- useEffect(() => {
-  // Ping backend to warm up (cold start on Render)
-  const pingBackend = async () => {
-    try {
-      const response = await fetch(`${API_URL}/ping`);      
-      if (response.ok) {
-        console.log('Ping successful');
+useEffect(() => {
+    const pingBackend = async () => {
+      try {
+        const response = await fetch(`${API_URL}/ping`);
+        if (response.ok){
+        console.log('ping successful');
       }
-    } catch (err) {
-      // Ignore – just a warm‑up call
-      console.log('Ping failed:', err);
-    }
-  };
-  pingBackend();
-}, []);
+      } catch (err) {
+        // Silently ignore – just a warm‑up call
+        console.log('Backend ping failed:', err);
+      }
+    };
+
+    // Immediate ping on mount
+    pingBackend();
+
+    // Set up interval
+    const intervalId = setInterval(pingBackend, 60000); // 60 seconds
+
+    // Cleanup on unmount
+    return () => clearInterval(intervalId);
+  }, []);
 
   const handleNetworkChange = (e) => {
     const selected = e.target.files[0];

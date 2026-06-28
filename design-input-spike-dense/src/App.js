@@ -1,6 +1,8 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import './App.css';
 
+const API_URL = process.env.REACT_APP_API_URL;
+
 // Helper: generate a short unique ID
 function uid() {
   return Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
@@ -11,6 +13,30 @@ function App() {
   const [inputValue, setInputValue] = useState('');
   const [runtime, setRuntime] = useState('');
   const inputRef = useRef(null);
+
+  useEffect(() => {
+    const pingBackend = async () => {
+      try {
+        const response = await fetch(`${API_URL}/ping`);
+        if (response.ok){
+        console.log('ping successful');
+      }
+      } catch (err) {
+        // Silently ignore – just a warm‑up call
+        console.log('Backend ping failed:', err);
+      }
+    };
+
+    // Immediate ping on mount
+    pingBackend();
+
+    // Set up interval
+    const intervalId = setInterval(pingBackend, 60000); // 60 seconds
+
+    // Cleanup on unmount
+    return () => clearInterval(intervalId);
+  }, []);
+
 
   // Auto-focus the input on mount
   useEffect(() => {

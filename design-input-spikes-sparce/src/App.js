@@ -1,5 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './App.css';
+
+const API_URL = process.env.REACT_APP_API_URL;
 
 const App = () => {
     const [nodes, setNodes] = useState([]);
@@ -7,6 +9,30 @@ const App = () => {
     const [showNodeInput, setShowNodeInput] = useState(false);
     const [newNodeValue, setNewNodeValue] = useState('');
     const [runTime, setRunTime] = useState('');
+
+    useEffect(() => {
+    const pingBackend = async () => {
+      try {
+        const response = await fetch(`${API_URL}/ping`);
+        if (response.ok){
+        console.log('ping successful');
+      }
+      } catch (err) {
+        // Silently ignore – just a warm‑up call
+        console.log('Backend ping failed:', err);
+      }
+    };
+
+    // Immediate ping on mount
+    pingBackend();
+
+    // Set up interval
+    const intervalId = setInterval(pingBackend, 60000); // 60 seconds
+
+    // Cleanup on unmount
+    return () => clearInterval(intervalId);
+  }, []);
+
 
     // Add a new node
     const addNode = () => {
