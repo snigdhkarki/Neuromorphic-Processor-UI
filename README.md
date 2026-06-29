@@ -33,7 +33,7 @@ While the official TENNLab framework provides robust Command Line Interface (CUI
 * **Containerization:** Docker (compiles and packages the C++ framework dependencies flawlessly)
 * **Deployment:** Render
 
-  ## 🛠️ Local Development
+<h2> Local Development </h2>
 
 If you want to make changes to the code, follow these steps to run the repository locally:
 
