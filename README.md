@@ -33,6 +33,38 @@ While the official TENNLab framework provides robust Command Line Interface (CUI
 * **Containerization:** Docker (compiles and packages the C++ framework dependencies flawlessly)
 * **Deployment:** Render
 
+  ## 🛠️ Local Development
+
+If you want to make changes to the code, follow these steps to run the repository locally:
+
+### 1. Fork and Clone
+
+* **Fork** this repository to your own GitHub account.
+* Clone your forked repository to your local machine:
+```bash
+git clone https://github.com/snigdhkarki/Neuromorphic-Processor-UI
+```
+
+### 2. Running the Pages
+The project is divided into 4 distinct folders, each representing a page of the website. To run a specific page:
+
+Navigate into any of the four project folders:
+
+```bash
+cd folder-name
+```
+Install the dependencies (if you haven't already):
+
+```bash
+npm install
+```
+Start the local development server:
+
+```bash
+npm start
+```
+Note: Repeat this process inside any of the other folders to spin up the respective pages of the website.
+
 This image shows the main landing page of the RISP Neuroprocessor dashboard outlining a clear three-step workflow for network design, input generation, and simulation.
 <img width="940" height="649" alt="image" src="https://github.com/user-attachments/assets/296dac42-3b9f-43bc-a7c1-0f3295b89c71" />
 
