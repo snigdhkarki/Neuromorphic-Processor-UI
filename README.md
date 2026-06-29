@@ -6,7 +6,7 @@ While the official TENNLab framework provides robust Command Line Interface (CUI
 
 ---
 
-<h2> Live Demo Link</h2>
+<h2> Live Link</h2>
 
 * **URL:** [neuromorphic-processor-ui-dashboard.vercel.app](https://neuromorphic-processor-ui-dashboard.vercel.app)
 
