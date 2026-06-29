@@ -39,7 +39,7 @@ If you want to make changes to the code, follow these steps to run the repositor
 
 ### 1. Fork and Clone
 
-* **Fork** this repository to your own GitHub account.
+* **Fork** the repository https://github.com/snigdhkarki/Neuromorphic-Processor-UI to your own GitHub account.
 * Clone your forked repository to your local machine:
 ```bash
 git clone https://github.com/snigdhkarki/Neuromorphic-Processor-UI
